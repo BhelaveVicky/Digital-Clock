@@ -148,8 +148,8 @@ const App: React.FC = () => {
         </div>
 
         {/* Secondary Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mt-10">
-          <div className="flex flex-col gap-6">
+        <div className="flex flex-col w-full mt-10 space-y-8">
+          <div className="flex flex-col gap-6 w-full">
             <div className="flex justify-between items-center mb-[-10px]">
               <h4 className="text-xs uppercase tracking-widest font-bold opacity-40 px-2">Global Tracking</h4>
               <button
