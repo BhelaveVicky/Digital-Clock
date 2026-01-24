@@ -1,0 +1,7 @@
+{
+  "name": "Lumina Digital Clock",
+  "description": "A premium, glassmorphic digital clock with neon effects, world time tracking, and alarm functionality.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
