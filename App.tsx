@@ -5,10 +5,13 @@ import { WorldZone, ClockSettings, ThemeMode } from './types';
 import { getTimeInZone, formatTime, formatDate } from './utils/time';
 import ClockDigit from './components/ClockDigit';
 import WorldClock from './components/WorldClock';
+import SearchModal from './components/SearchModal';
+import { cities } from './data/cities';
 
 const App: React.FC = () => {
   const [time, setTime] = useState(new Date());
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [settings, setSettings] = useState<ClockSettings>({
     is24Hour: false,
     isNeon: true,
@@ -40,20 +43,18 @@ const App: React.FC = () => {
     }
   };
 
-  const addWorldZone = () => {
-    const cities = [
-      { city: 'London', tz: 'Europe/London', flag: '🇬🇧' },
-      { city: 'Tokyo', tz: 'Asia/Tokyo', flag: '🇯🇵' },
-      { city: 'New York', tz: 'America/New_York', flag: '🇺🇸' },
-      { city: 'Sydney', tz: 'Australia/Sydney', flag: '🇦🇺' },
-      { city: 'Dubai', tz: 'Asia/Dubai', flag: '🇦🇪' },
-      { city: 'Paris', tz: 'Europe/Paris', flag: '🇫🇷' },
-      { city: 'Singapore', tz: 'Asia/Singapore', flag: '🇸🇬' }
-    ];
-    const pick = cities[Math.floor(Math.random() * cities.length)];
-    if (!worldZones.some(z => z.city === pick.city)) {
-      setWorldZones(prev => [...prev, { id: crypto.randomUUID(), city: pick.city, timezone: pick.tz, flag: pick.flag }]);
+
+
+  const addWorldZone = (cityData: typeof cities[0]) => {
+    if (!worldZones.some(z => z.city === cityData.city)) {
+      setWorldZones(prev => [...prev, {
+        id: crypto.randomUUID(),
+        city: cityData.city,
+        timezone: cityData.tz,
+        flag: cityData.flag
+      }]);
     }
+    setIsSearchOpen(false);
   };
 
   let displayTime = time;
@@ -176,7 +177,7 @@ const App: React.FC = () => {
             <div className="flex justify-between items-center mb-[-10px]">
               <h4 className="text-xs uppercase tracking-widest font-bold opacity-40 px-2">Global Tracking</h4>
               <button
-                onClick={addWorldZone}
+                onClick={() => setIsSearchOpen(true)}
                 className="text-[10px] uppercase tracking-wider bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full transition-all"
               >
                 + Add City
@@ -193,10 +194,14 @@ const App: React.FC = () => {
               }}
             />
           </div>
-
-
         </div>
       </main>
+
+      <SearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+        onSelect={addWorldZone}
+      />
 
       {/* Footer Branding */}
       <footer className="mt-16 mb-8 text-white/20 flex flex-col items-center gap-2">
