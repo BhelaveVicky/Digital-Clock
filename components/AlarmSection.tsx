@@ -62,7 +62,7 @@ const AlarmSection: React.FC<AlarmSectionProps> = ({ alarms, onAdd, onDelete, on
       )}
 
       <div className="space-y-3">
-        {alarms.length === 0 ? (
+        {alarms.length === 0 && !isAdding ? (
           <p className="text-white/30 text-center text-sm py-4">No alarms set</p>
         ) : (
           alarms.map(alarm => (
