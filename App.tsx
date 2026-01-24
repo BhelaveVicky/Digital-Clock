@@ -46,13 +46,19 @@ const App: React.FC = () => {
 
 
   const addWorldZone = (cityData: typeof cities[0]) => {
-    if (!worldZones.some(z => z.city === cityData.city)) {
+    const existingZone = worldZones.find(z => z.city === cityData.city);
+
+    if (existingZone) {
+      setSelectedZoneId(existingZone.id);
+    } else {
+      const newId = crypto.randomUUID();
       setWorldZones(prev => [...prev, {
-        id: crypto.randomUUID(),
+        id: newId,
         city: cityData.city,
         timezone: cityData.tz,
         flag: cityData.flag
       }]);
+      setSelectedZoneId(newId);
     }
     setIsSearchOpen(false);
   };
