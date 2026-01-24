@@ -2,12 +2,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Settings, Maximize2, Minimize2, Sparkles, Moon, Sun, Clock as ClockIcon, Plus } from 'lucide-react';
 import { WorldZone, ClockSettings, ThemeMode } from './types';
-import { formatTime, formatDate } from './utils/time';
+import { getTimeInZone, formatTime, formatDate } from './utils/time';
 import ClockDigit from './components/ClockDigit';
 import WorldClock from './components/WorldClock';
 
 const App: React.FC = () => {
   const [time, setTime] = useState(new Date());
+  const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [settings, setSettings] = useState<ClockSettings>({
     is24Hour: false,
     isNeon: true,
@@ -53,7 +54,15 @@ const App: React.FC = () => {
     }
   };
 
-  const { hours, minutes, seconds, period } = formatTime(time, settings.is24Hour);
+  let displayTime = time;
+  if (selectedZoneId) {
+    const zone = worldZones.find(z => z.id === selectedZoneId);
+    if (zone) {
+      displayTime = getTimeInZone(zone.timezone);
+    }
+  }
+
+  const { hours, minutes, seconds, period } = formatTime(displayTime, settings.is24Hour);
 
   if (!isClient) return null;
 
@@ -142,7 +151,7 @@ const App: React.FC = () => {
           {/* Date Display */}
           <div className="mt-10 text-center">
             <h2 className={`text-lg md:text-2xl font-light tracking-[0.2em] uppercase opacity-70 ${settings.theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-              {formatDate(time)}
+              {formatDate(displayTime)}
             </h2>
           </div>
         </div>
@@ -162,7 +171,12 @@ const App: React.FC = () => {
             <WorldClock
               zones={worldZones}
               is24Hour={settings.is24Hour}
-              onRemove={(id) => setWorldZones(z => z.filter(x => x.id !== id))}
+              selectedId={selectedZoneId}
+              onSelect={(id) => setSelectedZoneId(prev => prev === id ? null : id)}
+              onRemove={(id) => {
+                setWorldZones(z => z.filter(x => x.id !== id));
+                if (selectedZoneId === id) setSelectedZoneId(null);
+              }}
             />
           </div>
 

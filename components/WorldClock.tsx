@@ -8,9 +8,11 @@ interface WorldClockProps {
   zones: WorldZone[];
   is24Hour: boolean;
   onRemove: (id: string) => void;
+  selectedId?: string | null;
+  onSelect?: (id: string) => void;
 }
 
-const WorldClock: React.FC<WorldClockProps> = ({ zones, is24Hour, onRemove }) => {
+const WorldClock: React.FC<WorldClockProps> = ({ zones, is24Hour, onRemove, selectedId, onSelect }) => {
   const [times, setTimes] = useState<Record<string, Date>>({});
 
   useEffect(() => {
@@ -39,16 +41,30 @@ const WorldClock: React.FC<WorldClockProps> = ({ zones, is24Hour, onRemove }) =>
         {zones.map(zone => {
           const t = times[zone.id] || new Date();
           const { hours, minutes, seconds, period } = formatTime(t, is24Hour);
+          const isSelected = selectedId === zone.id;
+
           return (
-            <div key={zone.id} className="relative group p-6 bg-white/5 rounded-2xl border border-white/5 hover:border-white/20 transition-all">
+            <div
+              key={zone.id}
+              onClick={() => onSelect?.(zone.id)}
+              className={`relative group p-6 rounded-2xl border transition-all cursor-pointer ${isSelected
+                  ? 'bg-cyan-500/10 border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.15)]'
+                  : 'bg-white/5 border-white/5 hover:border-white/20 hover:bg-white/10'
+                }`}
+            >
               <button
-                onClick={() => onRemove(zone.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemove(zone.id);
+                }}
                 className="absolute top-2 right-2 p-1 text-white/0 group-hover:text-white/40 hover:text-white transition-colors"
               >
                 <X size={14} />
               </button>
-              <div className="text-white/60 text-xs mb-2 uppercase font-medium tracking-wider">{zone.city}</div>
-              <div className="font-digital text-3xl text-white flex items-baseline gap-1">
+              <div className={`text-xs mb-2 uppercase font-medium tracking-wider ${isSelected ? 'text-cyan-300' : 'text-white/60'}`}>
+                {zone.city}
+              </div>
+              <div className={`font-digital text-3xl flex items-baseline gap-1 ${isSelected ? 'text-cyan-200' : 'text-white'}`}>
                 <span>{hours}:{minutes}</span>
                 <span className="text-base opacity-60 font-normal">{seconds}</span>
                 {!is24Hour && <span className="text-xs ml-1 opacity-60 font-normal self-start mt-1">{period}</span>}
