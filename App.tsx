@@ -42,23 +42,27 @@ const App: React.FC = () => {
 
   const addWorldZone = () => {
     const cities = [
-      { city: 'London', tz: 'Europe/London' },
-      { city: 'Tokyo', tz: 'Asia/Tokyo' },
-      { city: 'New York', tz: 'America/New_York' },
-      { city: 'Sydney', tz: 'Australia/Sydney' },
-      { city: 'Dubai', tz: 'Asia/Dubai' }
+      { city: 'London', tz: 'Europe/London', flag: '🇬🇧' },
+      { city: 'Tokyo', tz: 'Asia/Tokyo', flag: '🇯🇵' },
+      { city: 'New York', tz: 'America/New_York', flag: '🇺🇸' },
+      { city: 'Sydney', tz: 'Australia/Sydney', flag: '🇦🇺' },
+      { city: 'Dubai', tz: 'Asia/Dubai', flag: '🇦🇪' },
+      { city: 'Paris', tz: 'Europe/Paris', flag: '🇫🇷' },
+      { city: 'Singapore', tz: 'Asia/Singapore', flag: '🇸🇬' }
     ];
     const pick = cities[Math.floor(Math.random() * cities.length)];
     if (!worldZones.some(z => z.city === pick.city)) {
-      setWorldZones(prev => [...prev, { id: crypto.randomUUID(), city: pick.city, timezone: pick.tz }]);
+      setWorldZones(prev => [...prev, { id: crypto.randomUUID(), city: pick.city, timezone: pick.tz, flag: pick.flag }]);
     }
   };
 
   let displayTime = time;
+  let selectedZone: WorldZone | undefined;
+
   if (selectedZoneId) {
-    const zone = worldZones.find(z => z.id === selectedZoneId);
-    if (zone) {
-      displayTime = getTimeInZone(zone.timezone);
+    selectedZone = worldZones.find(z => z.id === selectedZoneId);
+    if (selectedZone) {
+      displayTime = getTimeInZone(selectedZone.timezone);
     }
   }
 
@@ -101,10 +105,20 @@ const App: React.FC = () => {
 
       {/* Main Clock Card */}
       <main className="w-full max-w-4xl flex flex-col items-center animate-in fade-in zoom-in duration-1000">
-        <div className={`w-full p-8 md:p-16 rounded-[40px] shadow-2xl transition-all duration-500 flex flex-col items-center ${settings.theme === 'dark' ? 'glass-dark' : 'bg-white/40 backdrop-blur-md border border-white/20'}`}>
+        <div className={`w-full p-8 md:p-16 rounded-[40px] shadow-2xl transition-all duration-500 flex flex-col items-center relative overflow-hidden ${settings.theme === 'dark' ? 'glass-dark' : 'bg-white/40 backdrop-blur-md border border-white/20'}`}>
+
+          {selectedZone && (
+            <div className="absolute top-4 left-4 md:top-8 md:left-8 flex items-center gap-3 animate-in slide-in-from-left-4 fade-in duration-500">
+              <span className="text-4xl shadow-xl">{selectedZone.flag}</span>
+              <div className="flex flex-col">
+                <span className="text-xs font-bold tracking-widest uppercase opacity-50">Current Location</span>
+                <span className="text-xl md:text-2xl font-bold tracking-wider uppercase bg-clip-text text-transparent bg-gradient-to-r from-white to-white/50">{selectedZone.city}</span>
+              </div>
+            </div>
+          )}
 
           {/* Format Badge */}
-          <div className="mb-8">
+          <div className="mb-8 mt-4">
             <button
               onClick={() => setSettings(s => ({ ...s, is24Hour: !s.is24Hour }))}
               className="px-6 py-2 rounded-full glass text-xs font-bold tracking-widest uppercase hover:bg-white/10 transition-all border border-white/10"

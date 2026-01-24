@@ -10,6 +10,7 @@ export interface WorldZone {
   id: string;
   city: string;
   timezone: string;
+  flag: string;
 }
 
 export type ThemeMode = 'dark' | 'light';
