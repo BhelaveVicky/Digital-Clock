@@ -1,11 +1,10 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Settings, Maximize2, Minimize2, Sparkles, Moon, Sun, Clock as ClockIcon, Plus } from 'lucide-react';
-import { Alarm, WorldZone, ClockSettings, ThemeMode } from './types';
+import { WorldZone, ClockSettings, ThemeMode } from './types';
 import { formatTime, formatDate } from './utils/time';
 import ClockDigit from './components/ClockDigit';
 import WorldClock from './components/WorldClock';
-import AlarmSection from './components/AlarmSection';
 
 const App: React.FC = () => {
   const [time, setTime] = useState(new Date());
@@ -15,7 +14,6 @@ const App: React.FC = () => {
     theme: 'dark',
     showSeconds: true
   });
-  const [alarms, setAlarms] = useState<Alarm[]>([]);
   const [worldZones, setWorldZones] = useState<WorldZone[]>([]);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -28,15 +26,6 @@ const App: React.FC = () => {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
-
-  // Alarm Checker
-  useEffect(() => {
-    const nowStr = time.getHours().toString().padStart(2, '0') + ':' + time.getMinutes().toString().padStart(2, '0');
-    const trigger = alarms.find(a => a.isEnabled && a.time === nowStr && time.getSeconds() === 0);
-    if (trigger) {
-      alert(`Alarm Triggered: ${trigger.label}`);
-    }
-  }, [time, alarms]);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -64,10 +53,6 @@ const App: React.FC = () => {
     }
   };
 
-  const addAlarm = (timeStr: string, label: string) => {
-    setAlarms(prev => [...prev, { id: crypto.randomUUID(), time: timeStr, label, isEnabled: true }]);
-  };
-
   const { hours, minutes, seconds, period } = formatTime(time, settings.is24Hour);
 
   if (!isClient) return null;
@@ -75,28 +60,28 @@ const App: React.FC = () => {
   return (
     <div className={`min-h-screen transition-colors duration-700 animate-gradient flex flex-col items-center justify-center p-4 overflow-x-hidden ${settings.theme === 'dark' ? 'bg-neutral-950 text-white' : 'bg-blue-50 text-neutral-900'}`}
       style={{
-        backgroundImage: settings.theme === 'dark' 
-          ? 'linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #1e1b4b)' 
+        backgroundImage: settings.theme === 'dark'
+          ? 'linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #1e1b4b)'
           : 'linear-gradient(-45deg, #f0f9ff, #e0f2fe, #bae6fd, #e0f2fe)'
       }}
     >
       {/* Top Controls */}
       <div className="fixed top-6 right-6 flex items-center gap-3 z-50">
-        <button 
+        <button
           onClick={() => setSettings(s => ({ ...s, theme: s.theme === 'dark' ? 'light' : 'dark' }))}
           className="p-3 glass rounded-full hover:scale-110 active:scale-95 transition-all text-white/80 hover:text-white"
           title="Toggle Theme"
         >
           {settings.theme === 'dark' ? <Sun size={20} /> : <Moon size={20} className="text-indigo-600" />}
         </button>
-        <button 
+        <button
           onClick={() => setSettings(s => ({ ...s, isNeon: !s.isNeon }))}
           className={`p-3 glass rounded-full hover:scale-110 active:scale-95 transition-all ${settings.isNeon ? 'text-cyan-400' : 'text-white/80'}`}
           title="Toggle Neon"
         >
           <Sparkles size={20} />
         </button>
-        <button 
+        <button
           onClick={toggleFullscreen}
           className="p-3 glass rounded-full hover:scale-110 active:scale-95 transition-all text-white/80 hover:text-white"
           title="Fullscreen"
@@ -108,10 +93,10 @@ const App: React.FC = () => {
       {/* Main Clock Card */}
       <main className="w-full max-w-4xl flex flex-col items-center animate-in fade-in zoom-in duration-1000">
         <div className={`w-full p-8 md:p-16 rounded-[40px] shadow-2xl transition-all duration-500 flex flex-col items-center ${settings.theme === 'dark' ? 'glass-dark' : 'bg-white/40 backdrop-blur-md border border-white/20'}`}>
-          
+
           {/* Format Badge */}
           <div className="mb-8">
-            <button 
+            <button
               onClick={() => setSettings(s => ({ ...s, is24Hour: !s.is24Hour }))}
               className="px-6 py-2 rounded-full glass text-xs font-bold tracking-widest uppercase hover:bg-white/10 transition-all border border-white/10"
             >
@@ -123,11 +108,11 @@ const App: React.FC = () => {
           <div className="flex items-center gap-2 md:gap-4 select-none">
             <ClockDigit value={hours[0]} isNeon={settings.isNeon} />
             <ClockDigit value={hours[1]} isNeon={settings.isNeon} />
-            
+
             <div className={`font-digital text-5xl md:text-7xl font-light mb-4 transition-opacity duration-1000 ${time.getSeconds() % 2 === 0 ? 'opacity-100' : 'opacity-20'} ${settings.isNeon ? 'text-cyan-400 drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]' : 'text-white/40'}`}>
               :
             </div>
-            
+
             <ClockDigit value={minutes[0]} isNeon={settings.isNeon} />
             <ClockDigit value={minutes[1]} isNeon={settings.isNeon} />
 
@@ -137,10 +122,10 @@ const App: React.FC = () => {
                   :
                 </div>
                 <div className="flex flex-col items-start">
-                   <div className="flex items-center gap-1 opacity-80">
-                      <ClockDigit value={seconds[0]} isNeon={settings.isNeon} />
-                      <ClockDigit value={seconds[1]} isNeon={settings.isNeon} />
-                   </div>
+                  <div className="flex items-center gap-1 opacity-80">
+                    <ClockDigit value={seconds[0]} isNeon={settings.isNeon} />
+                    <ClockDigit value={seconds[1]} isNeon={settings.isNeon} />
+                  </div>
                 </div>
               </>
             )}
@@ -167,29 +152,21 @@ const App: React.FC = () => {
           <div className="flex flex-col gap-6">
             <div className="flex justify-between items-center mb-[-10px]">
               <h4 className="text-xs uppercase tracking-widest font-bold opacity-40 px-2">Global Tracking</h4>
-              <button 
+              <button
                 onClick={addWorldZone}
                 className="text-[10px] uppercase tracking-wider bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full transition-all"
               >
                 + Add City
               </button>
             </div>
-            <WorldClock 
-              zones={worldZones} 
-              is24Hour={settings.is24Hour} 
-              onRemove={(id) => setWorldZones(z => z.filter(x => x.id !== id))} 
+            <WorldClock
+              zones={worldZones}
+              is24Hour={settings.is24Hour}
+              onRemove={(id) => setWorldZones(z => z.filter(x => x.id !== id))}
             />
           </div>
-          
-          <div className="flex flex-col gap-6">
-             <h4 className="text-xs uppercase tracking-widest font-bold opacity-40 px-2">Reminders</h4>
-             <AlarmSection 
-                alarms={alarms} 
-                onAdd={addAlarm} 
-                onDelete={(id) => setAlarms(a => a.filter(x => x.id !== id))}
-                onToggle={(id) => setAlarms(a => a.map(x => x.id === id ? { ...x, isEnabled: !x.isEnabled } : x))}
-              />
-          </div>
+
+
         </div>
       </main>
 
